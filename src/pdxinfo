@@ -3,3 +3,4 @@ author=ussaohelcim
 description=Play the classic snake with your Playdate's crank.
 bundleID=com.NILCO.snkr
 version=1.0
+imagePath=images/

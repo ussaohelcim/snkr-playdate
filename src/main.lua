@@ -27,16 +27,17 @@ import "snake"
 local player = Snake()
 local egg = Egg()
 local p = PARTY()
+local slowTime = 0
+local fps = {
+	normal = 20,
+	slow = 10
+}
+local highscore = json.decodeFile("highscore.json") or {score = 0}
+local score = 0
 
-playdate.display.setRefreshRate(20)
-
--- playdate.ui.crankIndicator:start()
+playdate.display.setRefreshRate(fps.normal)
 
 function playdate.update()
-	-- if playdate.isCrankDocked() then
-	-- 	playdate.ui.crankIndicator:update()
-	-- end
-
 	playdate.graphics.clear()
 
 	--update particles positions and draw them
@@ -54,17 +55,40 @@ function playdate.update()
 		end
 		egg = Egg()
 		player.ateEgg = true
+		score = score + 1
 	end
 
 	--if colliding, start a new snake
 	if not player.isInsideScreen() or player.isCollidingWithSelf() then
+		slowTime = 10
+		playdate.display.setRefreshRate(fps.slow)
+
 		for i, bodyPart in pairs(player.body) do
 			for x = 1, 10, 1 do
-				p.addParticle(player.body[i],30,0.1)
+				p.addParticle(player.body[i],40,0.5,3)
 			end
 		end
+		if score > highscore.score then
+			local saveData = {
+				score = score
+			}
+			playdate.datastore.write(saveData, "highscore")
+			highscore.score = score
+		end
+		score = 0
 		player = Snake()
 	end
 
-	playdate.timer.updateTimers()
+	if slowTime > 0 then
+		slowTime = slowTime - 1
+		if slowTime < 1 then
+			slowTime = 0
+			playdate.display.setRefreshRate(fps.normal)
+		end
+	end
+	drawScore()
+end
+
+function drawScore()
+	playdate.graphics.drawText("Score: "..score..", Highscore: "..highscore.score,0,0)
 end

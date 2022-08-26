@@ -64,8 +64,7 @@ function Snake()
 			if bodyPart.withEgg then
 				r = r * 2
 			end
-
-			playdate.graphics.drawCircleAtPoint(bodyPart.x,bodyPart.y, r)
+			playdate.graphics.fillCircleAtPoint(bodyPart.x,bodyPart.y, r)
 		end
 	end
 

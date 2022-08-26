@@ -20,7 +20,7 @@ function PARTY()
 	local self = {}
 	self.particles = {}
 
-	function self.addParticle(position, ttl,s)
+	function self.addParticle(position, ttl,s,r)
 		local found = false
 		for i, particle in pairs(self.particles) do
 			if particle.ttl <= 0 then
@@ -28,7 +28,8 @@ function PARTY()
 				particle.x = position.x
 				particle.y = position.y
 				particle.ttl = ttl
-				particle.s = s or math.random(0,20)
+				particle.s = s or math.random(0, 20)
+				particle.r = r or 1
 				particle.a = math.random() * (math.pi *2)
 				break
 			end
@@ -42,7 +43,8 @@ function PARTY()
 					y = position.y,
 					ttl = ttl,
 					a = math.random() * (math.pi *2),
-					s = s or math.random(0,20)
+					s = s or math.random(0, 20),
+					r = r or 1
 				}
 			)
 		end
@@ -56,8 +58,7 @@ function PARTY()
 				particle.x = particle.x + (d.x * particle.s )
 				particle.y = particle.y + (d.y * particle.s)
 				particle.ttl = particle.ttl - 1
-
-				playdate.graphics.drawPixel(particle.x, particle.y)
+				playdate.graphics.drawCircleAtPoint(particle.x, particle.y,particle.r)
 			end
 		end
 	end

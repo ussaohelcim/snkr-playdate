@@ -35,6 +35,12 @@ local fps = {
 local highscore = json.decodeFile("highscore.json") or {score = 0}
 local score = 0
 
+local sounds = {
+	highscore = playdate.sound.sampleplayer.new("sounds/highscore.wav"),
+	death = playdate.sound.sampleplayer.new("sounds/death.wav"),
+	egg = playdate.sound.sampleplayer.new("sounds/egg.wav")
+}
+
 playdate.display.setRefreshRate(fps.normal)
 
 function playdate.update()
@@ -56,11 +62,19 @@ function playdate.update()
 		egg = Egg()
 		player.ateEgg = true
 		score = score + 1
+
+		if score > highscore.score then
+			sounds.highscore:play(1)
+		else
+			sounds.egg:play(1)
+		end
 	end
 
 	--if colliding, start a new snake
 	if not player.isInsideScreen() or player.isCollidingWithSelf() then
 		slowTime = 10
+		sounds.death:play(1)
+		
 		playdate.display.setRefreshRate(fps.slow)
 
 		for i, bodyPart in pairs(player.body) do
@@ -77,6 +91,8 @@ function playdate.update()
 		end
 		score = 0
 		player = Snake()
+
+		
 	end
 
 	if slowTime > 0 then

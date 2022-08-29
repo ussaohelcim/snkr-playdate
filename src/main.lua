@@ -27,11 +27,6 @@ import "snake"
 local player = Snake()
 local egg = Egg()
 local p = PARTY()
-local slowTime = 0
-local fps = {
-	normal = 20,
-	slow = 10
-}
 local highscore = json.decodeFile("highscore.json") or {score = 0}
 local score = 0
 
@@ -41,10 +36,22 @@ local sounds = {
 	egg = playdate.sound.sampleplayer.new("sounds/egg.wav")
 }
 
-playdate.display.setRefreshRate(fps.normal)
+playdate.display.setRefreshRate(20)
+
+local bg = playdate.graphics.image.new(400,240)
+
+playdate.graphics.pushContext(bg)
+playdate.graphics.drawRect(0,0,400,240)
+playdate.graphics.popContext()
+
+playdate.graphics.sprite.setBackgroundDrawingCallback(
+	function( x, y, width, height )
+		bg:draw( 0, 0 )
+	end
+)
 
 function playdate.update()
-	playdate.graphics.clear()
+	playdate.graphics.sprite.update()
 
 	--update particles positions and draw them
 	p.update()
@@ -72,16 +79,12 @@ function playdate.update()
 
 	--if colliding, start a new snake
 	if not player.isInsideScreen() or player.isCollidingWithSelf() then
-		slowTime = 10
 		sounds.death:play(1)
 		
-		playdate.display.setRefreshRate(fps.slow)
-
 		for i, bodyPart in pairs(player.body) do
-			for x = 1, 10, 1 do
-				p.addParticle(player.body[i],40,0.5,3)
-			end
+			p.addParticle(player.body[i],40,0.5,3)
 		end
+
 		if score > highscore.score then
 			local saveData = {
 				score = score
@@ -89,20 +92,14 @@ function playdate.update()
 			playdate.datastore.write(saveData, "highscore")
 			highscore.score = score
 		end
+
 		score = 0
 		player = Snake()
 
-		
 	end
 
-	if slowTime > 0 then
-		slowTime = slowTime - 1
-		if slowTime < 1 then
-			slowTime = 0
-			playdate.display.setRefreshRate(fps.normal)
-		end
-	end
 	drawScore()
+	
 end
 
 function drawScore()
